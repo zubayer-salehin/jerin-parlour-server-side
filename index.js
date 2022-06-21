@@ -32,7 +32,7 @@ function verifyJWT(req, res, next) {
         next();
     })
 }
-// Hello World
+
 async function run() {
 
     try {
