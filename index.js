@@ -12,7 +12,7 @@ app.use(express.json())
 app.use(cors())
 
 app.get('/', (req, res) => {
-    res.send('Jenis Parlour Server Side')
+    res.send('Welcome to Jenis Parlour Server Side')
 })
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.bdkak.mongodb.net/?retryWrites=true&w=majority`;
