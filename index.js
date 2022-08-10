@@ -8,12 +8,12 @@ var jwt = require('jsonwebtoken');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 /*  Firebase Admin Sdk Start  */
-const serviceAccount = require("./jerin-parlour-55b6a-firebase-adminsdk-n2rv8-7cb4aed91d.json");
+// const serviceAccount = require("./jerin-parlour-55b6a-firebase-adminsdk-n2rv8-7cb4aed91d.json");
 const admin = require("firebase-admin");
 const { getAuth } = require('firebase-admin/auth');
 
 admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount)
+    credential: admin.credential.cert(process.env.firebaseAdminSdkFile)
 });
 /*  Firebase Admin Sdk End  */
 
