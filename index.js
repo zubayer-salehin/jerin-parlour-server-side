@@ -8,7 +8,6 @@ var jwt = require('jsonwebtoken');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const admin = require("firebase-admin");
 const { getAuth } = require('firebase-admin/auth');
-const firebaseAdminSdkFile = require("./firebaseAdminSdk.json");
 
 app.use(express.json())
 app.use(cors())
@@ -16,7 +15,19 @@ app.use(cors())
 
 /*  Firebase Admin Sdk Start  */
 admin.initializeApp({
-    credential: admin.credential.cert(firebaseAdminSdkFile)
+    credential: admin.credential.cert({
+        "type": process.env.type,
+        "project_id": process.env.project_id,
+        "private_key_id": process.env.private_key_id,
+        "private_key": process.env.private_key,
+        "client_email": process.env.client_email,
+        "client_id": process.env.client_id,
+        "auth_uri": process.env.auth_uri,
+        "token_uri": process.env.token_uri,
+        "auth_provider_x509_cert_url": process.env.auth_provider_x509_cert_url,
+        "client_x509_cert_url": process.env.client_x509_cert_url
+    }
+    )
 });
 /*  Firebase Admin Sdk End  */
 
