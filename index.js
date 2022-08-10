@@ -2,22 +2,22 @@ const express = require('express');
 const app = express();
 const cors = require('cors');
 require('dotenv').config();
-const port = process.env.PORT || 5000
+const port = process.env.PORT || 5000;
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 var jwt = require('jsonwebtoken');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const admin = require("firebase-admin");
 const { getAuth } = require('firebase-admin/auth');
-const firebaseAdminSdk = require("./firebaseAdminSdk.json");
-
 
 app.use(express.json())
 app.use(cors())
 
 
 /*  Firebase Admin Sdk Start  */
+const firebase_private_key_b64 = Buffer.from(process.env.FIREBASE_PRIVATE_KEY, 'base64');
+const firebase_private_key = firebase_private_key_b64.toString('utf8');
 admin.initializeApp({
-    credential: admin.credential.cert(firebaseAdminSdk)
+    credential: admin.credential.cert(JSON.parse(firebase_private_key))
 });
 /*  Firebase Admin Sdk End  */
 
@@ -275,14 +275,8 @@ async function run() {
             // Delete User in Database
             const result = await userCollection.deleteOne(query);
             // Delete User in Firebase
-            getAuth()
-                .deleteUser(uid)
-                .then(() => {
-                    console.log('Successfully deleted user');
-                })
-                .catch((error) => {
-                    console.log('Error deleting user:', error);
-                });
+            getAuth().deleteUser(uid)
+            // Database given result pass in client side
             res.send(result);
         })
 
