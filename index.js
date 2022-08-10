@@ -6,19 +6,19 @@ const port = process.env.PORT || 5000
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 var jwt = require('jsonwebtoken');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
-
-/*  Firebase Admin Sdk Start  */
-// const serviceAccount = require("./jerin-parlour-55b6a-firebase-adminsdk-n2rv8-7cb4aed91d.json");
 const admin = require("firebase-admin");
 const { getAuth } = require('firebase-admin/auth');
 
+app.use(express.json())
+app.use(cors())
+
+
+/*  Firebase Admin Sdk Start  */
 admin.initializeApp({
     credential: admin.credential.cert(process.env.firebaseAdminSdkFile)
 });
 /*  Firebase Admin Sdk End  */
 
-app.use(express.json())
-app.use(cors())
 
 app.get('/', (req, res) => {
     res.send('Welcome to Jenis Parlour Server Side')
