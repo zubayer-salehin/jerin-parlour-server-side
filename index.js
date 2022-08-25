@@ -85,16 +85,20 @@ async function run() {
 
         app.get("/available", async (req, res) => {
             const date = req.query.date;
-            const services = await serviceCollection.find().toArray();
+            const id = req.query.id;
+            const services = await serviceCollection.findOne({ _id: ObjectId(id) });
             const query = { date: date }
             const bookings = await bookingCollection.find(query).toArray();
-            services.forEach(service => {
-                const serviceBooking = bookings.filter(book => book.treatment === service.name)
-                const bookSlots = serviceBooking.map(book => book.slot)
-                const available = service.slots.filter(slot => !bookSlots.includes(slot))
-                service.slots = available;
-            })
+            const serviceBooking = bookings.filter(book => book.treatment === services.name)
+            const bookSlots = serviceBooking.map(book => book.slot)
+            const available = services.slots.filter(slot => !bookSlots.includes(slot))
+            services.slots = available;
             res.send(services);
+        })
+
+        app.get("/allServices", async (req, res) => {
+            const result = await serviceCollection.find().toArray();
+            res.send(result);
         })
 
         app.get("/services", verifyJWT, verifyAdmin, async (req, res) => {
@@ -185,7 +189,7 @@ async function run() {
 
         app.get("/booking/:id", verifyJWT, async (req, res) => {
             const id = req.params.id;
-            const query = { treatmentId: id }
+            const query = { _id: ObjectId(id) }
             const result = await bookingCollection.findOne(query);
             res.send(result);
         })
@@ -198,7 +202,7 @@ async function run() {
                 return res.send({ success: false, booking: exists })
             }
             const result = await bookingCollection.insertOne(booking);
-            res.send({ success: true, result });
+            res.send(result);
         })
 
         app.delete("/booking/:id", verifyJWT, async (req, res) => {
@@ -248,7 +252,7 @@ async function run() {
                 $set: user
             };
             const result = await userCollection.updateOne(filter, updateDoc, options);
-            var token = jwt.sign({ email: email }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "5h" })
+            var token = jwt.sign({ email: email }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "40d" })
             res.send({ result, token });
         })
 
