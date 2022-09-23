@@ -3,7 +3,7 @@ const app = express();
 const cors = require('cors');
 require('dotenv').config();
 const port = process.env.PORT || 5000;
-const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+const { MongoClient, ServerRouteVersion, ObjectId } = require('mongodb');
 var jwt = require('jsonwebtoken');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const admin = require("firebase-admin");
@@ -21,14 +21,16 @@ admin.initializeApp({
 });
 /*  Firebase Admin Sdk End  */
 
-
+/* Home Route */
 app.get('/', (req, res) => {
     res.send('Welcome to Jenis Parlour Server Side')
 })
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.bdkak.mongodb.net/?retryWrites=true&w=majority`;
-const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
+const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverRoute: ServerRouteVersion.v1 });
 
+
+/*    Verify JWT Start    */
 function verifyJWT(req, res, next) {
     const authHeader = req.headers.authorization;
     if (!authHeader) {
@@ -43,6 +45,8 @@ function verifyJWT(req, res, next) {
         next();
     })
 }
+/*    Verify JWT End    */
+
 
 async function run() {
 
@@ -54,6 +58,7 @@ async function run() {
         const userCollection = client.db("jerinParlour").collection("user");
         const paymentCollection = client.db("jerinParlour").collection("payment");
 
+        // Payment Confirm Route
         app.post("/create-payment-intent", verifyJWT, async (req, res) => {
             const order = req.body;
             const price = order.price;
@@ -66,6 +71,7 @@ async function run() {
             res.send({ clientSecret: paymentIntent.client_secret });
         })
 
+        // Verify Admin
         const verifyAdmin = async (req, res, next) => {
             const requester = req.decoded.email;
             const requesterAccount = await userCollection.findOne({ email: requester })
@@ -76,13 +82,7 @@ async function run() {
             }
         }
 
-        app.get("/admin/:email", verifyJWT, async (req, res) => {
-            const email = req.params.email;
-            const user = await userCollection.findOne({ email: email })
-            const isAdmin = user.role === "Admin"
-            res.send({ Admin: isAdmin })
-        })
-
+        /*    Service Collection Route Start    */
         app.get("/available", async (req, res) => {
             const date = req.query.date;
             const id = req.query.id;
@@ -131,7 +131,9 @@ async function run() {
             const result = await serviceCollection.deleteOne(query);
             res.send(result);
         })
+        /*    Service Collection Route End    */
 
+        /*    Reveiw Collection Route Start    */
         app.get("/reveiws", async (req, res) => {
             const result = await reveiwCollection.find().toArray();
             res.send(result);
@@ -148,7 +150,9 @@ async function run() {
             const result = await reveiwCollection.insertOne(newReveiw);
             res.send({ success: true, result });
         })
+        /*    Reveiw Collection Route End    */
 
+        /*    Booking Collection Route Start    */
         app.get('/orders/:id', verifyJWT, async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) }
@@ -218,7 +222,9 @@ async function run() {
             const result = await bookingCollection.deleteOne(query);
             res.send(result);
         })
+        /*    Booking Collection Route End    */
 
+        /*    User Collection Route Start    */
         app.get("/users", verifyJWT, verifyAdmin, async (req, res) => {
             const result = await userCollection.find().toArray();
             res.send(result);
@@ -229,6 +235,13 @@ async function run() {
             const query = { email: email }
             const result = await userCollection.findOne(query);
             res.send(result);
+        })
+
+        app.get("/admin/:email", verifyJWT, async (req, res) => {
+            const email = req.params.email;
+            const user = await userCollection.findOne({ email: email })
+            const isAdmin = user.role === "Admin"
+            res.send({ Admin: isAdmin })
         })
 
         app.put("/userUpdate", verifyJWT, async (req, res) => {
@@ -283,6 +296,7 @@ async function run() {
             // Database given result pass in client side
             res.send(result);
         })
+        /*    User Collection Route End    */
 
     } finally {
         // await client.close();
