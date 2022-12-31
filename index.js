@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 const cors = require('cors');
 require('dotenv').config();
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 8000;
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 var jwt = require('jsonwebtoken');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
@@ -23,7 +23,7 @@ admin.initializeApp({
 
 /* Home Route */
 app.get('/', (req, res) => {
-    res.send('Welcome to Jenis Parlour Server Side')
+    res.send('Welcome to Jerin Parlour Server Side')
 })
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.bdkak.mongodb.net/?retryWrites=true&w=majority`;
