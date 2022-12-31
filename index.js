@@ -30,7 +30,7 @@ const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@clu
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
 
-/*    Verify JWT Start    */
+/*    Verify JWT Token Start    */
 function verifyJWT(req, res, next) {
     const authHeader = req.headers.authorization;
     if (!authHeader) {
@@ -45,7 +45,7 @@ function verifyJWT(req, res, next) {
         next();
     })
 }
-/*    Verify JWT End    */
+/*    Verify JWT Token End    */
 
 
 async function run() {
